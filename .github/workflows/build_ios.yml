@@ -12,19 +12,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 配置Xcode
+      - name: 配置Xcode环境
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
-      - name: 归档打包
+      - name: 归档打包（跳过Watch扩展）
         run: |
           mkdir -p ./build
           xcodebuild archive \
             -project Loop.xcodeproj \
             -scheme Loop \
             -destination generic/platform=iOS \
-            -archivePath ./build/Loop.xcarchive
+            -archivePath ./build/Loop.xcarchive \
+            SKIP_WATCH_EXTENSION=YES
 
       - name: 导出无签名IPA
         run: |
@@ -32,7 +33,7 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath ./build/Loop.xcarchive \
             -exportPath ./ipa \
-            -exportOptionsPlist <(echo '{"method":"development","signingStyle":"manual","stripSwiftSymbols":true}')
+            -exportOptionsPlist <(echo '{"method":"development","signingStyle":"manual","stripSwiftSymbols":true,"teamID":""}')
 
       - name: 上传IPA安装包
         uses: actions/upload-artifact@v4
