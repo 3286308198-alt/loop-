@@ -13,35 +13,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 清除全部Watch手表组件配置与文件
-        run: |
-          sed -i '/Watch/d' Loop.xcodeproj/project.pbxproj
-          rm -rf LoopWatch WatchExtension LoopWatchApp
-
-      - name: 加载Xcode
+      - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
 
-      - name: 归档打包
+      - name: Archive iOS Only (自动过滤Watch Target)
         run: |
           mkdir -p ./build
           xcodebuild archive \
-            -project Loop.xcodeproj \
+            -workspace Loop.xcworkspace \
             -scheme Loop \
-            -destination generic/platform=iOS \
-            -archivePath ./build/Loop.xcarchive
+            -destination 'platform=iOS,name=Any iOS Device' \
+            -archivePath ./build/Loop.xcarchive \
+            ONLY_ACTIVE_ARCH=NO
 
-      - name: 导出无签名IPA
+      - name: Export unsigned IPA
         run: |
           mkdir -p ./ipa
           xcodebuild -exportArchive \
             -archivePath ./build/Loop.xcarchive \
             -exportPath ./ipa \
-            -exportOptionsPlist <(echo '{"method":"development","signingStyle":"manual","stripSwiftSymbols":true,"teamID":null}')
+            -exportOptionsPlist <(echo '{"method":"development","signingStyle":"manual","teamID":null}')
 
-      - name: 上传IPA安装包
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Loop-无签名IPA
+          name: Loop-IPA
           path: ./ipa/*.ipa
