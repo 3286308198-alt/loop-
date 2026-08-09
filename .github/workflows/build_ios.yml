@@ -5,6 +5,10 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      CODE_SIGN_IDENTITY: ""
+      CODE_SIGNING_REQUIRED: NO
+      CODE_SIGNING_ALLOWED: NO
     steps:
       - uses: actions/checkout@v4
 
@@ -13,16 +17,6 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: 编译主App
-        run: >
-          xcodebuild build
-          -project Loop.xcodeproj
-          -scheme Loop
-          -destination generic/platform=iOS
-          CODE_SIGN_IDENTITY=""
-          CODE_SIGNING_REQUIRED=NO
-          CODE_SIGNING_ALLOWED=NO
-
       - name: 归档打包
         run: |
           mkdir -p ./build
@@ -30,10 +24,9 @@ jobs:
             -project Loop.xcodeproj \
             -scheme Loop \
             -destination generic/platform=iOS \
-            -archivePath ./build/Loop.xcarchive \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+            -archivePath ./build/Loop.xcarchive
 
-      - name: 导出IPA
+      - name: 导出无签名IPA
         run: |
           mkdir -p ./ipa
           xcodebuild -exportArchive \
@@ -41,7 +34,7 @@ jobs:
             -exportPath ./ipa \
             -exportOptionsPlist <(echo '{"method":"development","signingStyle":"manual","stripSwiftSymbols":true}')
 
-      - name: 上传安装包
+      - name: 上传IPA安装包
         uses: actions/upload-artifact@v4
         with:
           name: Loop-无签名IPA
