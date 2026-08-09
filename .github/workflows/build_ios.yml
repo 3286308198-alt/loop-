@@ -9,6 +9,7 @@ jobs:
       CODE_SIGN_IDENTITY: ""
       CODE_SIGNING_REQUIRED: NO
       CODE_SIGNING_ALLOWED: NO
+      SKIP_WATCH_EXTENSION: "YES"
     steps:
       - uses: actions/checkout@v4
 
@@ -17,15 +18,15 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: 归档打包（跳过Watch扩展）
+      - name: 归档打包（全局禁用Watch扩展）
         run: |
           mkdir -p ./build
+          export SKIP_WATCH_EXTENSION=YES
           xcodebuild archive \
             -project Loop.xcodeproj \
             -scheme Loop \
             -destination generic/platform=iOS \
-            -archivePath ./build/Loop.xcarchive \
-            SKIP_WATCH_EXTENSION=YES
+            -archivePath ./build/Loop.xcarchive
 
       - name: 导出无签名IPA
         run: |
