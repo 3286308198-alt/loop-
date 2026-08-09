@@ -18,17 +18,15 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Archive iOS Only (自动过滤Watch Target)
+      - name: Archive Project
         run: |
           mkdir -p ./build
           xcodebuild archive \
             -workspace Loop.xcworkspace \
             -scheme Loop \
-            -destination 'platform=iOS,name=Any iOS Device' \
-            -archivePath ./build/Loop.xcarchive \
-            ONLY_ACTIVE_ARCH=NO
+            -archivePath ./build/Loop.xcarchive
 
-      - name: Export unsigned IPA
+      - name: Export Unsigned IPA
         run: |
           mkdir -p ./ipa
           xcodebuild -exportArchive \
